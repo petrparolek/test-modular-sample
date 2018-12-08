@@ -14,24 +14,6 @@
 			"homepage": "https://nette.org/contributors"
 		}
 	],
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/petrparolek/Ares"
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/petrparolek/testbench"
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/petrparolek/ublaboo-datagrid"
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/petrparolek/WebChemistry-router"
-		}
-	],
 	"require": {
 		"php": ">= 7.0",
 		"nette/application": "^2.4",
@@ -53,7 +35,7 @@
 		"latte/latte": "^2.4",
 		"tracy/tracy": "^2.4",
 		"dg/adminer-custom": "^1.9",
-		"webchemistry/router": "dev-petrparolek-patch-1"
+		"webchemistry/router": "dev-master"
 	},
 	"require-dev": {
 		"nette/tester": "^2.0"

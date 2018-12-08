@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d97ff8adf12067b8bab3859c4560ffa3",
+    "content-hash": "319b897b8840ef13cc27a1b105b5a942",
     "packages": [
         {
             "name": "dg/adminer-custom",
@@ -1321,16 +1321,16 @@
         },
         {
             "name": "webchemistry/router",
-            "version": "dev-petrparolek-patch-1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/petrparolek/WebChemistry-router.git",
-                "reference": "44d4466205fe78044cee39cee48038743d5e807d"
+                "url": "https://github.com/WebChemistry/router.git",
+                "reference": "687cb99bfb81aeb8373afd3dab63e94f4558b0d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/petrparolek/WebChemistry-router/zipball/44d4466205fe78044cee39cee48038743d5e807d",
-                "reference": "44d4466205fe78044cee39cee48038743d5e807d",
+                "url": "https://api.github.com/repos/WebChemistry/router/zipball/687cb99bfb81aeb8373afd3dab63e94f4558b0d7",
+                "reference": "687cb99bfb81aeb8373afd3dab63e94f4558b0d7",
                 "shasum": ""
             },
             "require": {
@@ -1338,32 +1338,27 @@
                 "php": ">=7.1"
             },
             "require-dev": {
+                "codeception/codeception": "^2.5",
                 "nette/di": "^2.3 || ^3.0"
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "src/"
-                ]
+                "psr-4": {
+                    "WebChemistry\\Routing\\": [
+                        "src/"
+                    ]
+                }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Antik",
-                    "email": "antik494@gmail.com"
-                }
             ],
             "description": "Router",
             "keywords": [
                 "router",
                 "webchemistry"
             ],
-            "support": {
-                "source": "https://github.com/petrparolek/WebChemistry-router/tree/petrparolek-patch-1"
-            },
-            "time": "2018-12-06T13:26:20+00:00"
+            "time": "2018-12-08T09:51:37+00:00"
         }
     ],
     "packages-dev": [

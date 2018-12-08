@@ -14,10 +14,10 @@ class TestExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
-		/* $builder->addDefinition($this->prefix('routers'))
-		  ->addTag('router')
-		  ->setFactory(\TestPackage\Test\TestRouter::class)
-		  ->setAutowired(true); */
+		$builder->addDefinition($this->prefix('routers'))
+			->addTag('router')
+			->setFactory(\TestPackage\Test\TestRouter::class)
+			->setAutowired(true);
 	}
 
 	public function beforeCompile()

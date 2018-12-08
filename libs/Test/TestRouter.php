@@ -16,7 +16,5 @@ class TestRouter implements IRouter
 	{
 		$app = $routeManager->getModule('Test');
 		$app[] = new Route('/test/<presenter>/<action>[/<id>]', 'Default:default');
-
-		//$routeManager->finish(); // Sub routers are not processed
 	}
 }

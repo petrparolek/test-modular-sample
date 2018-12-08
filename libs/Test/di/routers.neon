@@ -1,3 +1,5 @@
 routers:
+	modules:
+	- Test
 	routers:
 		- TestPackage\Test\TestRouter

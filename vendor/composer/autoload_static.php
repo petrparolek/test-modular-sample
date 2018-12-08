@@ -13,6 +13,20 @@ class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
         'a1d067aa2e53d6b47171c03cfc0ea5be' => __DIR__ . '/..' . '/nette/safe-stream/src/loader.php',
     );
 
+    public static $prefixLengthsPsr4 = array (
+        'W' => 
+        array (
+            'WebChemistry\\Routing\\' => 21,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'WebChemistry\\Routing\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/webchemistry/router/src',
+        ),
+    );
+
     public static $classMap = array (
         'Latte\\CompileException' => __DIR__ . '/..' . '/latte/latte/src/Latte/exceptions.php',
         'Latte\\Compiler' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Compiler.php',
@@ -343,15 +357,13 @@ class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
         'Tracy\\ILogger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/ILogger.php',
         'Tracy\\Logger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Logger.php',
         'Tracy\\OutputDebugger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/OutputDebugger.php',
-        'WebChemistry\\Routing\\DI\\RouterExtension' => __DIR__ . '/..' . '/webchemistry/router/src/DI/RouterExtension.php',
-        'WebChemistry\\Routing\\IRouter' => __DIR__ . '/..' . '/webchemistry/router/src/IRouter.php',
-        'WebChemistry\\Routing\\RouteManager' => __DIR__ . '/..' . '/webchemistry/router/src/RouteManager.php',
-        'WebChemistry\\Routing\\RouterException' => __DIR__ . '/..' . '/webchemistry/router/src/RouterException.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$classMap;
 
         }, null, ClassLoader::class);

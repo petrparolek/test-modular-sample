@@ -335,8 +335,4 @@ return array(
     'Tracy\\ILogger' => $vendorDir . '/tracy/tracy/src/Tracy/ILogger.php',
     'Tracy\\Logger' => $vendorDir . '/tracy/tracy/src/Tracy/Logger.php',
     'Tracy\\OutputDebugger' => $vendorDir . '/tracy/tracy/src/Tracy/OutputDebugger.php',
-    'WebChemistry\\Routing\\DI\\RouterExtension' => $vendorDir . '/webchemistry/router/src/DI/RouterExtension.php',
-    'WebChemistry\\Routing\\IRouter' => $vendorDir . '/webchemistry/router/src/IRouter.php',
-    'WebChemistry\\Routing\\RouteManager' => $vendorDir . '/webchemistry/router/src/RouteManager.php',
-    'WebChemistry\\Routing\\RouterException' => $vendorDir . '/webchemistry/router/src/RouterException.php',
 );

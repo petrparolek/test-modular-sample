@@ -17,4 +17,7 @@ extensions:
 	- TestPackage\Test\DI\TestExtension
 
 routers:
-	main: App\MainRouter
+    modules:
+        - App
+    routers:
+        - App\MainRouter

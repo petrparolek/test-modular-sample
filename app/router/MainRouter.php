@@ -16,7 +16,5 @@ class MainRouter implements IRouter
 	{
 		$app = $routeManager->getModule('App');
 		$app[] = new Route('[<locale=cs cs|en>/]<presenter>/<action>[/<id>]', 'Homepage:default');
-
-		//$routeManager->finish(); // Sub routers are not processed
 	}
 }

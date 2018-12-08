@@ -25,9 +25,9 @@ $configurator->createRobotLoader()
 
 $configurator->addConfig(__DIR__ . '/config/config.neon');
 
-foreach (Finder::findFiles('routers.neon')->from($libDir) as $key => $file) {
-	$configurator->addConfig($key);
-}
+/* foreach (Finder::findFiles('routers.neon')->from($libDir) as $key => $file) {
+  $configurator->addConfig($key);
+  } */
 
 $container = $configurator->createContainer();
 
