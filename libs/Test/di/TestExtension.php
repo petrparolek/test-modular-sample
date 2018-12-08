@@ -18,6 +18,9 @@ class TestExtension extends CompilerExtension
 			->addTag('router')
 			->setFactory(\TestPackage\Test\TestRouter::class)
 			->setAutowired(true);
+
+		$builder->getDefinition('routers.routerManager')
+			->addSetup('createModule', ['module']);
 	}
 
 	public function beforeCompile()
