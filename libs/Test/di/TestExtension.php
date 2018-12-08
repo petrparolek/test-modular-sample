@@ -20,7 +20,7 @@ class TestExtension extends CompilerExtension
 			->setAutowired(true);
 
 		$builder->getDefinition('routers.routerManager')
-			->addSetup('createModule', ['module']);
+			->addSetup('createModule', ['Test']);
 	}
 
 	public function beforeCompile()
