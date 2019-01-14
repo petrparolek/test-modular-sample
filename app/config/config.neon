@@ -15,9 +15,11 @@ extensions:
 	routers: WebChemistry\Routing\DI\RouterExtension
 
 	- TestPackage\Test\DI\TestExtension
+	- TestPackage\TestB\DI\TestBExtension
 
 routers:
 	modules:
+		- TestB
 		- Test
 		- App
 	routers:

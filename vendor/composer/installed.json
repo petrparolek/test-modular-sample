@@ -1423,12 +1423,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/WebChemistry/router.git",
-            "reference": "8b6a49c2fbb10e191ac26fca09def051dec7e53c"
+            "reference": "8a352dc6c503cdbd9bea74fe1e1ef28b34b9cb09"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/WebChemistry/router/zipball/8b6a49c2fbb10e191ac26fca09def051dec7e53c",
-            "reference": "8b6a49c2fbb10e191ac26fca09def051dec7e53c",
+            "url": "https://api.github.com/repos/WebChemistry/router/zipball/8a352dc6c503cdbd9bea74fe1e1ef28b34b9cb09",
+            "reference": "8a352dc6c503cdbd9bea74fe1e1ef28b34b9cb09",
             "shasum": ""
         },
         "require": {
@@ -1439,7 +1439,7 @@
             "codeception/codeception": "^2.5",
             "nette/di": "^2.3 || ^3.0"
         },
-        "time": "2018-12-08T10:13:47+00:00",
+        "time": "2018-12-09T17:21:39+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
