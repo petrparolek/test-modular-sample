@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace TestPackage\Test\Presenters;
+namespace App\TestModule\Presenters;
 
 use Nette;
 

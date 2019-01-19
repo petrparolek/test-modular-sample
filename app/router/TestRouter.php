@@ -1,6 +1,6 @@
 <?php
 
-namespace TestPackage\Test;
+namespace App;
 
 use WebChemistry\Routing\IRouter;
 use WebChemistry\Routing\RouteManager;
@@ -14,7 +14,7 @@ class TestRouter implements IRouter
 	 */
 	public function createRouter(RouteManager $routeManager): void
 	{
-		$app = $routeManager->getModule('Test');
-		$app[] = new Route('/test/<presenter>/<action>[/<id>]', 'Default:default');
+		$test = $routeManager->getModule('Test');
+		$test[] = new Route('test/<presenter>/<action>[/<id>]', 'Default:default');
 	}
 }

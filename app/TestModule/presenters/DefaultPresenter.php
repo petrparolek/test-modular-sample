@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace TestPackage\Test\Presenters;
-
-use Nette;
+namespace App\TestModule\Presenters;
 
 class DefaultPresenter extends BasePresenter
 {

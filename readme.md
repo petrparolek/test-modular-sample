@@ -1,6 +1,8 @@
 Nette Sandbox
 =============
 
+Bug is showing on url `/testb`.
+
 This is a simple pre-packaged and pre-configured application using the [Nette](https://nette.org)
 that you can use as the starting point for your new applications.
 
@@ -58,7 +60,7 @@ To use it, browse to the subdirectory `/adminer` in your project root (i.e. `htt
 Notice: Composer PHP version
 ----------------------------
 
-This project forces PHP 5.6 (eventually 7.1) as your PHP version for Composer packages. If you have newer 
+This project forces PHP 5.6 (eventually 7.1) as your PHP version for Composer packages. If you have newer
 version on production server you should change it in `composer.json`:
 
 ```json
