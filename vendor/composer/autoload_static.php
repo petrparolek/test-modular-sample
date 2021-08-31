@@ -4,12 +4,11 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
+class ComposerStaticInitdb1041ef4a10a6cb3a53b9663a189a3c
 {
     public static $files = array (
-        '7745382c92b7799bf1294b1f43023ba2' => __DIR__ . '/..' . '/tracy/tracy/src/shortcuts.php',
         'a12da592622097d2b593a430e32e13fd' => __DIR__ . '/..' . '/nette/utils/src/loader.php',
-        'e7a6fd2e7a869bb207158e9416bdd9b0' => __DIR__ . '/..' . '/nette/application/src/compatibility.php',
+        '7745382c92b7799bf1294b1f43023ba2' => __DIR__ . '/..' . '/tracy/tracy/src/shortcuts.php',
         'a1d067aa2e53d6b47171c03cfc0ea5be' => __DIR__ . '/..' . '/nette/safe-stream/src/loader.php',
     );
 
@@ -28,6 +27,7 @@ class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Latte\\CompileException' => __DIR__ . '/..' . '/latte/latte/src/Latte/exceptions.php',
         'Latte\\Compiler' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Compiler.php',
         'Latte\\Engine' => __DIR__ . '/..' . '/latte/latte/src/Latte/Engine.php',
@@ -101,6 +101,8 @@ class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
         'Nette\\Application\\UI\\MethodReflection' => __DIR__ . '/..' . '/nette/application/src/Application/UI/MethodReflection.php',
         'Nette\\Application\\UI\\Multiplier' => __DIR__ . '/..' . '/nette/application/src/Application/UI/Multiplier.php',
         'Nette\\Application\\UI\\Presenter' => __DIR__ . '/..' . '/nette/application/src/Application/UI/Presenter.php',
+        'Nette\\Application\\UI\\PresenterComponent' => __DIR__ . '/..' . '/nette/application/src/compatibility.php',
+        'Nette\\Application\\UI\\PresenterComponentReflection' => __DIR__ . '/..' . '/nette/application/src/compatibility.php',
         'Nette\\ArgumentOutOfRangeException' => __DIR__ . '/..' . '/nette/utils/src/Utils/exceptions.php',
         'Nette\\Bridges\\ApplicationDI\\ApplicationExtension' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationDI/ApplicationExtension.php',
         'Nette\\Bridges\\ApplicationDI\\LatteExtension' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationDI/LatteExtension.php',
@@ -362,9 +364,9 @@ class ComposerStaticInit636a51e9ce0427316a7c14e4201d3946
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit636a51e9ce0427316a7c14e4201d3946::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitdb1041ef4a10a6cb3a53b9663a189a3c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitdb1041ef4a10a6cb3a53b9663a189a3c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitdb1041ef4a10a6cb3a53b9663a189a3c::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -19,7 +19,7 @@
 		"nette/component-model": "^2.3",
 		"nette/http": "^2.2",
 		"nette/reflection": "^2.2",
-		"nette/utils": "^2.4 || ~3.0.0"
+		"nette/utils": "^2.4"
 	},
 	"suggest": {
 		"nette/forms": "Allows to use Nette\\Application\\UI\\Form",
@@ -33,7 +33,7 @@
 		"nette/security": "^2.4",
 		"latte/latte": "^2.4.3",
 		"tracy/tracy": "^2.4",
-		"mockery/mockery": "^0.9.5"
+		"mockery/mockery": "^1.0"
 	},
 	"conflict": {
 		"nette/nette": "<2.2",
@@ -42,8 +42,7 @@
 		"nette/latte": "<2.4"
 	},
 	"autoload": {
-		"classmap": ["src/"],
-		"files": ["src/compatibility.php"]
+		"classmap": ["src/"]
 	},
 	"minimum-stability": "dev",
 	"extra": {
