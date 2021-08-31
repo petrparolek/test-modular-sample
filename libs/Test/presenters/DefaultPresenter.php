@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace TestPackage\Test\Presenters;
 
-use Nette;
+use App\AppModule\Presenters\BasePresenter;
 
 class DefaultPresenter extends BasePresenter
 {
