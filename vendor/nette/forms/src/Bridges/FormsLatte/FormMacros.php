@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Bridges\FormsLatte;
 
 use Latte;
@@ -22,18 +24,21 @@ use Latte\PhpWriter;
  * - {label name /} or {label name}... {/label}
  * - {inputError name}
  * - {formContainer name} ... {/formContainer}
+ * - {formContext name} ... {/formContext}
  */
-class FormMacros extends MacroSet
+final class FormMacros extends MacroSet
 {
-	public static function install(Latte\Compiler $compiler)
+	public static function install(Latte\Compiler $compiler): void
 	{
 		$me = new static($compiler);
 		$me->addMacro('form', [$me, 'macroForm'], 'echo Nette\Bridges\FormsLatte\Runtime::renderFormEnd(array_pop($this->global->formsStack));');
+		$me->addMacro('formContext', [$me, 'macroFormContext'], 'array_pop($this->global->formsStack);');
 		$me->addMacro('formContainer', [$me, 'macroFormContainer'], 'array_pop($this->global->formsStack); $formContainer = $_form = end($this->global->formsStack)');
 		$me->addMacro('label', [$me, 'macroLabel'], [$me, 'macroLabelEnd'], null, self::AUTO_EMPTY);
 		$me->addMacro('input', [$me, 'macroInput']);
 		$me->addMacro('name', [$me, 'macroName'], [$me, 'macroNameEnd'], [$me, 'macroNameAttr']);
 		$me->addMacro('inputError', [$me, 'macroInputError']);
+		$me->addMacro('formPrint', [$me, 'macroFormPrint']);
 	}
 
 
@@ -52,7 +57,7 @@ class FormMacros extends MacroSet
 			throw new CompileException('Did you mean <form n:name=...> ?');
 		}
 		$name = $node->tokenizer->fetchWord();
-		if ($name === false) {
+		if ($name == null) { // null or false
 			throw new CompileException('Missing form name in ' . $node->getNotation());
 		}
 		$node->replaced = true;
@@ -67,6 +72,30 @@ class FormMacros extends MacroSet
 
 
 	/**
+	 * {formContext ...}
+	 */
+	public function macroFormContext(MacroNode $node, PhpWriter $writer)
+	{
+		if ($node->modifiers) {
+			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
+		}
+		if ($node->prefix) {
+			throw new CompileException('Did you mean <form n:name=...> ?');
+		}
+		$name = $node->tokenizer->fetchWord();
+		if ($name == null) { // null or false
+			throw new CompileException('Missing form name in ' . $node->getNotation());
+		}
+		$node->tokenizer->reset();
+		return $writer->write(
+			'$form = $this->global->formsStack[] = '
+			. ($name[0] === '$' ? 'is_object(%node.word) ? %node.word : ' : '')
+			. '$this->global->uiControl[%node.word];'
+		);
+	}
+
+
+	/**
 	 * {formContainer ...}
 	 */
 	public function macroFormContainer(MacroNode $node, PhpWriter $writer)
@@ -75,7 +104,7 @@ class FormMacros extends MacroSet
 			throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
 		}
 		$name = $node->tokenizer->fetchWord();
-		if ($name === false) {
+		if ($name == null) { // null or false
 			throw new CompileException('Missing name in ' . $node->getNotation());
 		}
 		$node->tokenizer->reset();
@@ -212,7 +241,7 @@ class FormMacros extends MacroSet
 			}
 		} elseif ($tagName === 'button') {
 			if ($node->htmlNode->empty) {
-				$node->innerContent = '<?php echo htmlspecialchars($_input->caption) ?>';
+				$node->innerContent = '<?php echo htmlspecialchars($_input->getCaption()) ?>';
 			}
 		} else { // select, textarea
 			$node->innerContent = '<?php echo $_input->getControl()->getHtml() ?>';
@@ -240,18 +269,20 @@ class FormMacros extends MacroSet
 	}
 
 
-	/** @deprecated */
-	public static function renderFormBegin(Form $form, array $attrs, $withTags = true)
+	/**
+	 * {formPrint [ClassName]}
+	 */
+	public function macroFormPrint(MacroNode $node, PhpWriter $writer)
 	{
-		trigger_error(__METHOD__ . '() is deprecated, use Nette\Bridges\FormsLatte\Runtime::renderFormBegin()', E_USER_DEPRECATED);
-		echo Runtime::renderFormBegin($form, $attrs, $withTags);
-	}
-
-
-	/** @deprecated */
-	public static function renderFormEnd(Form $form, $withTags = true)
-	{
-		trigger_error(__METHOD__ . '() is deprecated, use Nette\Bridges\FormsLatte\Runtime::renderFormEnd()', E_USER_DEPRECATED);
-		echo Runtime::renderFormEnd($form, $withTags);
+		$name = $node->tokenizer->fetchWord();
+		if ($name == null) { // null or false
+			throw new CompileException('Missing form name in ' . $node->getNotation());
+		}
+		$node->tokenizer->reset();
+		return $writer->write(
+			'Nette\Bridges\FormsLatte\Runtime::renderBlueprint('
+			. ($name[0] === '$' ? 'is_object(%node.word) ? %node.word : ' : '')
+			. '$this->global->uiControl[%node.word]); exit;'
+		);
 	}
 }

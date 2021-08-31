@@ -25,10 +25,13 @@ var settings = {
 	// Sublime Text 2
 	// editor: '"C:\\Program Files\\Sublime Text 2\\sublime_text.exe" "%file%:%line%"',
 
+	// Visual Studio Code / VSCodium
+	// editor: '"C:\\Program Files\\Microsoft VS Code\\Code.exe" --goto "%file%:%line%"',
+
 	mappings: {
 		// '/remotepath': '/localpath'
 	}
-}
+};
 
 
 
@@ -77,5 +80,5 @@ var command = settings.editor.replace(/%line%/, line).replace(/%file%/, file);
 shell.Exec(command);
 
 if (settings.title) {
-	shell.AppActivate(settings.title)
+	shell.AppActivate(settings.title);
 }

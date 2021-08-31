@@ -12,6 +12,7 @@ namespace Tester;
 
 /**
  * PHP file mutator.
+ * @internal
  */
 class FileMutator
 {
@@ -31,7 +32,7 @@ class FileMutator
 	{
 		self::$mutators[] = $mutator;
 		stream_wrapper_unregister(self::PROTOCOL);
-		stream_wrapper_register(self::PROTOCOL, __CLASS__);
+		stream_wrapper_register(self::PROTOCOL, self::class);
 	}
 
 
@@ -43,7 +44,9 @@ class FileMutator
 
 	public function dir_opendir(string $path, int $options): bool
 	{
-		$this->handle = $this->native('opendir', $path, $this->context);
+		$this->handle = $this->context
+			? $this->native('opendir', $path, $this->context)
+			: $this->native('opendir', $path);
 		return (bool) $this->handle;
 	}
 
@@ -62,19 +65,26 @@ class FileMutator
 
 	public function mkdir(string $path, int $mode, int $options): bool
 	{
-		return $this->native('mkdir', $path, $mode, false, $this->context);
+		$recursive = (bool) ($options & STREAM_MKDIR_RECURSIVE);
+		return $this->context
+			? $this->native('mkdir', $path, $mode, $recursive, $this->context)
+			: $this->native('mkdir', $path, $mode, $recursive);
 	}
 
 
 	public function rename(string $pathFrom, string $pathTo): bool
 	{
-		return $this->native('rename', $pathFrom, $pathTo, $this->context);
+		return $this->context
+			? $this->native('rename', $pathFrom, $pathTo, $this->context)
+			: $this->native('rename', $pathFrom, $pathTo);
 	}
 
 
 	public function rmdir(string $path, int $options): bool
 	{
-		return $this->native('rmdir', $path, $this->context);
+		return $this->context
+			? $this->native('rmdir', $path, $this->context)
+			: $this->native('rmdir', $path);
 	}
 
 
@@ -104,7 +114,9 @@ class FileMutator
 
 	public function stream_lock(int $operation): bool
 	{
-		return flock($this->handle, $operation);
+		return $operation
+			? flock($this->handle, $operation)
+			: true;
 	}
 
 
@@ -112,8 +124,7 @@ class FileMutator
 	{
 		switch ($option) {
 			case STREAM_META_TOUCH:
-				$value += [null, null];
-				return $this->native('touch', $path, $value[0], $value[1]);
+				return $this->native('touch', $path, $value[0] ?? time(), $value[1] ?? time());
 			case STREAM_META_OWNER_NAME:
 			case STREAM_META_OWNER:
 				return $this->native('chown', $path, $value);
@@ -130,7 +141,7 @@ class FileMutator
 	public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
 	{
 		$usePath = (bool) ($options & STREAM_USE_PATH);
-		if (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
+		if ($mode === 'rb' && pathinfo($path, PATHINFO_EXTENSION) === 'php') {
 			$content = $this->native('file_get_contents', $path, $usePath, $this->context);
 			if ($content === false) {
 				return false;
@@ -164,8 +175,9 @@ class FileMutator
 	}
 
 
-	public function stream_set_option(int $option, int $arg1, int $arg2)
+	public function stream_set_option(int $option, int $arg1, int $arg2): bool
 	{
+		return false;
 	}
 
 
@@ -187,7 +199,7 @@ class FileMutator
 	}
 
 
-	public function stream_write(string $data): int
+	public function stream_write(string $data)
 	{
 		return fwrite($this->handle, $data);
 	}
@@ -211,9 +223,11 @@ class FileMutator
 	private function native(string $func)
 	{
 		stream_wrapper_restore(self::PROTOCOL);
-		$res = $func(...array_slice(func_get_args(), 1));
-		stream_wrapper_unregister(self::PROTOCOL);
-		stream_wrapper_register(self::PROTOCOL, __CLASS__);
-		return $res;
+		try {
+			return $func(...array_slice(func_get_args(), 1));
+		} finally {
+			stream_wrapper_unregister(self::PROTOCOL);
+			stream_wrapper_register(self::PROTOCOL, self::class);
+		}
 	}
 }

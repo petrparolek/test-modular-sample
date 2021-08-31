@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Forms;
 
 use Nette;
@@ -29,9 +31,9 @@ class Rule
 	/** @var bool */
 	public $isNegative = false;
 
-	/** @var string */
+	/** @var string|null */
 	public $message;
 
-	/** @var Rules  for conditions */
+	/** @var Rules|null  for conditions */
 	public $branch;
 }

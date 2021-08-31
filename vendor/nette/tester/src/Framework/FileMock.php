@@ -56,7 +56,7 @@ class FileMock
 	public static function register(): void
 	{
 		if (!in_array(self::PROTOCOL, stream_get_wrappers(), true)) {
-			stream_wrapper_register(self::PROTOCOL, __CLASS__);
+			stream_wrapper_register(self::PROTOCOL, self::class);
 		}
 	}
 
@@ -93,10 +93,10 @@ class FileMock
 	}
 
 
-	public function stream_read(int $length): string
+	public function stream_read(int $length)
 	{
 		if (!$this->isReadable) {
-			return '';
+			return false;
 		}
 
 		$result = substr($this->content, $this->readingPos, $length);
@@ -106,10 +106,10 @@ class FileMock
 	}
 
 
-	public function stream_write(string $data): int
+	public function stream_write(string $data)
 	{
 		if (!$this->isWritable) {
-			return 0;
+			return false;
 		}
 
 		$length = strlen($data);
@@ -162,6 +162,12 @@ class FileMock
 	}
 
 
+	public function stream_set_option(int $option, int $arg1, int $arg2): bool
+	{
+		return false;
+	}
+
+
 	public function stream_stat(): array
 	{
 		return ['mode' => 0100666, 'size' => strlen($this->content)];
@@ -178,6 +184,16 @@ class FileMock
 
 	public function stream_lock(int $operation): bool
 	{
+		return false;
+	}
+
+
+	public function stream_metadata(string $path, int $option, $value): bool
+	{
+		switch ($option) {
+			case STREAM_META_TOUCH:
+				return true;
+		}
 		return false;
 	}
 

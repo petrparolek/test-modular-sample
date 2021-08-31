@@ -11,26 +11,38 @@ class AdminerDumpPhpPrototype
 	public $shutdown_callback = false;
 	public $typePatterns = [
 		'^_' => 'string', // PostgreSQL arrays
-		'(TINY|SMALL|SHORT|MEDIUM|BIG|LONG)(INT)?|INT(EGER|\d+| IDENTITY)?|(SMALL|BIG|)SERIAL\d*|COUNTER|YEAR|BYTE|LONGLONG|UNSIGNED BIG INT' => 'int',
+		'(SMALL|SHORT|MEDIUM|BIG|LONG)(INT)?|INT(EGER|\d+| IDENTITY)?|(SMALL|BIG|)SERIAL\d*|COUNTER|YEAR|BYTE|LONGLONG|UNSIGNED BIG INT' => 'int',
 		'(NEW)?DEC(IMAL)?(\(.*)?|NUMERIC|REAL|DOUBLE( PRECISION)?|FLOAT\d*|(SMALL)?MONEY|CURRENCY|NUMBER' => 'float',
-		'BOOL(EAN)?' => 'bool',
+		'BOOL(EAN)?|TINYINT' => 'bool',
 		'TIME' => 'time',
 		'DATE' => 'date',
 		'(SMALL)?DATETIME(OFFSET)?\d*|TIME(STAMP.*)?' => 'datetime',
 		'BYTEA|(TINY|MEDIUM|LONG|)BLOB|(LONG )?(VAR)?BINARY|IMAGE' => 'binary',
 	];
+	public $phpTypes = [
+		'date' => 'DateTimeImmutable',
+		'datetime' => 'DateTimeImmutable',
+		'binary' => 'string',
+	];
+	private $formats = [
+		'code-insert' => 'Nette Database',
+		'code-form' => 'Nette Form',
+		'code-class' => 'Data Class',
+	];
 
 
 	public function dumpFormat()
 	{
-		return ['code-insert' => 'Nette Database', 'code-form' => 'Nette Form'];
+		return $this->formats;
 	}
 
 
 	public function dumpHeaders()
 	{
-		if ($_POST['format'] == 'code-insert' || $_POST['format'] == 'code-form') {
-			header('Content-Type: text/plain; charset=utf-8');
+		if (isset($this->formats[$_POST['format']])) {
+			echo '<script' . nonce() . ' type="text/javascript" src="static/prism.js"></script>';
+			echo '<link rel="stylesheet" href="static/prism.css">';
+			echo '<pre style="user-select:all"><code class="language-php">';
 			return $_POST['format'];
 		}
 	}
@@ -38,13 +50,13 @@ class AdminerDumpPhpPrototype
 
 	public function dumpTable($table)
 	{
+		ob_start();
 		if ($_POST['format'] == 'code-insert') {
 			echo "\$db->query('INSERT INTO " . table($table) . "', [\n";
 			foreach (fields($table) as $field => $foo) {
 				echo "\t'$field' => \$$field,\n";
 			}
 			echo "]);\n\n";
-			return true;
 
 		} elseif ($_POST['format'] == 'code-form') {
 			foreach (fields($table) as $field => $info) {
@@ -56,7 +68,7 @@ class AdminerDumpPhpPrototype
 				$args = var_export($field, true) . ', ' . var_export($label . ':', true);
 				$type = $this->detectType($info['type']);
 
-				if ($type === 'bool' || $info['type'] === 'tinyint') {
+				if ($type === 'bool') {
 					echo '$form->addCheckbox(', var_export($field, true), ', ', var_export($label, true), ')';
 					$info['null'] = true;
 				} elseif ($type === 'int' && strpos($field, '_id')) {
@@ -64,11 +76,11 @@ class AdminerDumpPhpPrototype
 				} elseif ($type === 'int') {
 					echo "\$form->addInteger($args)";
 				} elseif ($type === 'datetime') {
-					echo "\$form->addText($args)\n\t->setType('datetime-local')";
+					echo "\$form->addText($args)\n\t->setHtmlType('datetime-local')";
 				} elseif ($type === 'date') {
-					echo "\$form->addText($args)\n\t->setType('date')";
+					echo "\$form->addText($args)\n\t->setHtmlType('date')";
 				} elseif ($type === 'time') {
-					echo "\$form->addText($args)\n\t->setType('time')";
+					echo "\$form->addText($args)\n\t->setHtmlType('time')";
 				} elseif ($type === 'float') {
 					echo "\$form->addText($args)\n\t->addRule(\$form::FLOAT)";
 				} elseif ($type === 'string' && strpos($info['type'], 'text') === false) {
@@ -98,14 +110,47 @@ class AdminerDumpPhpPrototype
 			echo "\$form->addProtection();\n";
 			echo "\$form->onSuccess[] = [\$this, 'formSucceeded'];\n";
 			echo "\n\n";
-			return true;
+
+		} elseif ($_POST['format'] == 'code-class') {
+			$class = ucwords(str_replace('_', ' ', $table));
+			$class = preg_replace('~\W~', '', $class) . 'FormData';
+			echo "class $class\n";
+			echo "{\n";
+			echo "\tuse Nette\\SmartObject;\n\n";
+			foreach (fields($table) as $field => $info) {
+				$type = $this->detectType($info['type']);
+				$type = isset($this->phpTypes[$type]) ? $this->phpTypes[$type] : $type;
+				if ($info['null']) {
+					$type = '?' . $type;
+				}
+				if (PHP_VERSION_ID >= 70400) {
+					echo "\tpublic $type \$$field";
+				} else {
+					echo "\n\t/** @var $type */\n";
+					echo "\tpublic \$$field";
+				}
+				$default = $info['default'];
+				if ($default !== null && $default !== 'CURRENT_TIMESTAMP') {
+					@settype($default, $type); // may be invalid type
+					echo ' = ' . var_export($default, true);
+				}
+				echo ";\n";
+			}
+			echo "}\n\n\n";
+
+		} else {
+			ob_end_clean();
+			return;
 		}
+
+		echo htmlspecialchars(ob_get_clean());
+		return true;
 	}
 
 
 	public function dumpData($table, $style, $query)
 	{
-		if ($_POST['format'] == 'code-insert' || $_POST['format'] == 'code-form') {
+		if (isset($this->formats[$_POST['format']])) {
 			return true;
 		}
 	}

@@ -10,7 +10,7 @@ class TestExtension extends CompilerExtension
 
 	public $defaults = [];
 
-	public function loadConfiguration()
+	public function loadConfiguration(): void
 	{
 		$builder = $this->getContainerBuilder();
 
@@ -23,7 +23,7 @@ class TestExtension extends CompilerExtension
 			->addSetup('createModule', ['Test']);
 	}
 
-	public function beforeCompile()
+	public function beforeCompile(): void
 	{
 		$builder = $this->getContainerBuilder();
 

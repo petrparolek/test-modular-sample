@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Tokenizer;
 
 
@@ -23,7 +25,7 @@ class Token
 	public $offset;
 
 
-	public function __construct($value, $type, $offset)
+	public function __construct(string $value, $type, int $offset)
 	{
 		$this->value = $value;
 		$this->type = $type;

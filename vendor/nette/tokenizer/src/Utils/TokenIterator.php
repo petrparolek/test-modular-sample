@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Utils;
 
 
@@ -25,115 +27,104 @@ class TokenIterator
 
 
 	/**
-	 * @param array[]
+	 * @param array[]  $tokens
 	 */
 	public function __construct(array $tokens)
 	{
+		trigger_error(__CLASS__ . ' is deprecated, use similar Nette\Tokenizer\Stream', E_USER_DEPRECATED);
 		$this->tokens = $tokens;
 	}
 
 
 	/**
 	 * Returns current token.
-	 * @return array|null
 	 */
-	public function currentToken()
+	public function currentToken(): ?array
 	{
-		return isset($this->tokens[$this->position])
-			? $this->tokens[$this->position]
-			: null;
+		return $this->tokens[$this->position] ?? null;
 	}
 
 
 	/**
 	 * Returns current token value.
-	 * @return string|null
 	 */
-	public function currentValue()
+	public function currentValue(): ?string
 	{
-		return isset($this->tokens[$this->position])
-			? $this->tokens[$this->position][Tokenizer::VALUE]
-			: null;
+		return $this->tokens[$this->position][Tokenizer::VALUE] ?? null;
 	}
 
 
 	/**
 	 * Returns next token.
-	 * @param  int|string  (optional) desired token type or value
-	 * @return array|null
+	 * @param  int|string  ...$args  desired token type or value
 	 */
-	public function nextToken()
+	public function nextToken(...$args): ?array
 	{
-		return $this->scan(func_get_args(), true, true); // onlyFirst, advance
+		return $this->scan($args, true, true); // onlyFirst, advance
 	}
 
 
 	/**
 	 * Returns next token value.
-	 * @param  int|string  (optional) desired token type or value
-	 * @return string|null
+	 * @param  int|string  ...$args  desired token type or value
 	 */
-	public function nextValue()
+	public function nextValue(...$args): ?string
 	{
-		return $this->scan(func_get_args(), true, true, true); // onlyFirst, advance, strings
+		return $this->scan($args, true, true, true); // onlyFirst, advance, strings
 	}
 
 
 	/**
 	 * Returns all next tokens.
-	 * @param  int|string  (optional) desired token type or value
+	 * @param  int|string  ...$args  desired token type or value
 	 * @return array[]
 	 */
-	public function nextAll()
+	public function nextAll(...$args): array
 	{
-		return $this->scan(func_get_args(), false, true); // advance
+		return $this->scan($args, false, true); // advance
 	}
 
 
 	/**
 	 * Returns all next tokens until it sees a given token type or value.
-	 * @param  int|string  token type or value to stop before
+	 * @param  int|string  ...$args  token type or value to stop before (required)
 	 * @return array[]
 	 */
-	public function nextUntil($arg)
+	public function nextUntil(...$args): array
 	{
-		return $this->scan(func_get_args(), false, true, false, true); // advance, until
+		return $this->scan($args, false, true, false, true); // advance, until
 	}
 
 
 	/**
 	 * Returns concatenation of all next token values.
-	 * @param  int|string  (optional) token type or value to be joined
-	 * @return string
+	 * @param  int|string  ...$args  token type or value to be joined
 	 */
-	public function joinAll()
+	public function joinAll(...$args): string
 	{
-		return $this->scan(func_get_args(), false, true, true); // advance, strings
+		return $this->scan($args, false, true, true); // advance, strings
 	}
 
 
 	/**
 	 * Returns concatenation of all next tokens until it sees a given token type or value.
-	 * @param  int|string  token type or value to stop before
-	 * @return string
+	 * @param  int|string  ...$args  token type or value to stop before (required)
 	 */
-	public function joinUntil($arg)
+	public function joinUntil(...$args): string
 	{
-		return $this->scan(func_get_args(), false, true, true, true); // advance, strings, until
+		return $this->scan($args, false, true, true, true); // advance, strings, until
 	}
 
 
 	/**
 	 * Checks the current token.
-	 * @param  int|string  token type or value
-	 * @return bool
+	 * @param  int|string  ...$args  token type or value
 	 */
-	public function isCurrent($arg)
+	public function isCurrent(...$args): bool
 	{
 		if (!isset($this->tokens[$this->position])) {
 			return false;
 		}
-		$args = func_get_args();
 		$token = $this->tokens[$this->position];
 		return in_array($token[Tokenizer::VALUE], $args, true)
 			|| (isset($token[Tokenizer::TYPE]) && in_array($token[Tokenizer::TYPE], $args, true));
@@ -142,30 +133,28 @@ class TokenIterator
 
 	/**
 	 * Checks the next token existence.
-	 * @param  int|string  (optional) token type or value
-	 * @return bool
+	 * @param  int|string  ...$args  token type or value
 	 */
-	public function isNext()
+	public function isNext(...$args): bool
 	{
-		return (bool) $this->scan(func_get_args(), true, false); // onlyFirst
+		return (bool) $this->scan($args, true, false); // onlyFirst
 	}
 
 
 	/**
 	 * Checks the previous token existence.
-	 * @param  int|string  (optional) token type or value
-	 * @return bool
+	 * @param  int|string  ...$args  token type or value
 	 */
-	public function isPrev()
+	public function isPrev(...$args): bool
 	{
-		return (bool) $this->scan(func_get_args(), true, false, false, false, true); // onlyFirst, prev
+		return (bool) $this->scan($args, true, false, false, false, true); // onlyFirst, prev
 	}
 
 
 	/**
 	 * @return static
 	 */
-	public function reset()
+	public function reset(): self
 	{
 		$this->position = -1;
 		return $this;
@@ -175,7 +164,7 @@ class TokenIterator
 	/**
 	 * Moves cursor to next token.
 	 */
-	protected function next()
+	protected function next(): void
 	{
 		$this->position++;
 	}
@@ -183,15 +172,9 @@ class TokenIterator
 
 	/**
 	 * Looks for (first) (not) wanted tokens.
-	 * @param  array of desired token types or values
-	 * @param  bool
-	 * @param  bool
-	 * @param  bool
-	 * @param  bool
-	 * @param  bool
 	 * @return mixed
 	 */
-	protected function scan($wanted, $onlyFirst, $advance, $strings = false, $until = false, $prev = false)
+	protected function scan(array $wanted, bool $onlyFirst, bool $advance, bool $strings = false, bool $until = false, bool $prev = false)
 	{
 		$res = $onlyFirst ? null : ($strings ? '' : []);
 		$pos = $this->position + ($prev ? -1 : 1);
@@ -204,7 +187,7 @@ class TokenIterator
 			}
 
 			$token = $this->tokens[$pos];
-			$type = isset($token[Tokenizer::TYPE]) ? $token[Tokenizer::TYPE] : null;
+			$type = $token[Tokenizer::TYPE] ?? null;
 			if (!$wanted || (in_array($token[Tokenizer::VALUE], $wanted, true) || in_array($type, $wanted, true)) ^ $until) {
 				while ($advance && !$prev && $pos > $this->position) {
 					$this->next();

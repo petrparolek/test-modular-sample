@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Forms\Controls;
 
 use Nette;
@@ -21,7 +23,7 @@ class Checkbox extends BaseControl
 
 
 	/**
-	 * @param  string|object
+	 * @param  string|object  $label
 	 */
 	public function __construct($label = null)
 	{
@@ -34,7 +36,6 @@ class Checkbox extends BaseControl
 
 	/**
 	 * Sets control's value.
-	 * @param  bool
 	 * @return static
 	 * @internal
 	 */
@@ -48,21 +49,13 @@ class Checkbox extends BaseControl
 	}
 
 
-	/**
-	 * Is control filled?
-	 * @return bool
-	 */
-	public function isFilled()
+	public function isFilled(): bool
 	{
 		return $this->getValue() !== false; // back compatibility
 	}
 
 
-	/**
-	 * Generates control's HTML element.
-	 * @return Html
-	 */
-	public function getControl()
+	public function getControl(): Html
 	{
 		return $this->wrapper->setHtml($this->getLabelPart()->insert(0, $this->getControlPart()));
 	}
@@ -70,26 +63,20 @@ class Checkbox extends BaseControl
 
 	/**
 	 * Bypasses label generation.
-	 * @return void
 	 */
 	public function getLabel($caption = null)
 	{
+		return null;
 	}
 
 
-	/**
-	 * @return Html
-	 */
-	public function getControlPart()
+	public function getControlPart(): Html
 	{
 		return parent::getControl()->checked($this->value);
 	}
 
 
-	/**
-	 * @return Html
-	 */
-	public function getLabelPart()
+	public function getLabelPart(): Html
 	{
 		return parent::getLabel();
 	}
@@ -97,9 +84,8 @@ class Checkbox extends BaseControl
 
 	/**
 	 * Returns wrapper HTML element template.
-	 * @return Html
 	 */
-	public function getSeparatorPrototype()
+	public function getSeparatorPrototype(): Html
 	{
 		return $this->wrapper;
 	}

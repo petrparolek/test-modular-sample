@@ -5,38 +5,38 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Neon;
 
 
 /**
  * Simple parser & generator for Nette Object Notation.
+ * @see https://ne-on.org
  */
-class Neon
+final class Neon
 {
-	const BLOCK = Encoder::BLOCK;
+	public const BLOCK = Encoder::BLOCK;
 
-	const CHAIN = '!!chain';
+	public const CHAIN = '!!chain';
 
 
 	/**
-	 * Returns the NEON representation of a value.
-	 * @param  mixed  $var
-	 * @param  int  $options
-	 * @return string
+	 * Returns value converted to NEON. The flag can be Neon::BLOCK, which will create multiline output.
 	 */
-	public static function encode($var, $options = null)
+	public static function encode($value, int $flags = 0): string
 	{
 		$encoder = new Encoder;
-		return $encoder->encode($var, $options);
+		return $encoder->encode($value, $flags);
 	}
 
 
 	/**
-	 * Decodes a NEON string.
-	 * @param  string  $input
+	 * Converts given NEON to PHP value.
+	 * Returns scalars, arrays, DateTimeImmutable and Entity objects.
 	 * @return mixed
 	 */
-	public static function decode($input)
+	public static function decode(string $input)
 	{
 		$decoder = new Decoder;
 		return $decoder->decode($input);

@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Utils;
 
 
@@ -23,12 +25,12 @@ namespace Nette\Utils;
 class SafeStream
 {
 	/** Name of stream protocol - nette.safe:// */
-	const PROTOCOL = 'nette.safe';
+	public const PROTOCOL = 'nette.safe';
 
 	/** @var resource  orignal file handle */
 	private $handle;
 
-	/** @var resource  temporary file handle */
+	/** @var resource|null  temporary file handle */
 	private $tempHandle;
 
 	/** @var string  orignal file path */
@@ -46,26 +48,21 @@ class SafeStream
 
 	/**
 	 * Registers protocol 'nette.safe://'.
-	 * @return bool
 	 */
-	public static function register()
+	public static function register(): bool
 	{
-		foreach (array_intersect(stream_get_wrappers(), array('safe', self::PROTOCOL)) as $name) {
+		foreach (array_intersect(stream_get_wrappers(), ['safe', self::PROTOCOL]) as $name) {
 			stream_wrapper_unregister($name);
 		}
-		stream_wrapper_register('safe', __CLASS__); // old protocol
-		return stream_wrapper_register(self::PROTOCOL, __CLASS__);
+		stream_wrapper_register('safe', self::class); // old protocol
+		return stream_wrapper_register(self::PROTOCOL, self::class);
 	}
 
 
 	/**
 	 * Opens file.
-	 * @param  string    file name with stream protocol
-	 * @param  string    mode - see fopen()
-	 * @param  int       STREAM_USE_PATH, STREAM_REPORT_ERRORS
-	 * @return bool      true on success or false on failure
 	 */
-	public function stream_open($path, $mode, $options)
+	public function stream_open(string $path, string $mode, int $options): bool
 	{
 		$path = substr($path, strpos($path, ':') + 3);  // trim protocol nette.safe://
 
@@ -89,7 +86,7 @@ class SafeStream
 			$this->deleteFile = true;
 
 		} elseif ($mode[0] === 'w' || $mode[0] === 'a' || $mode[0] === 'c') {
-			if ($this->checkAndLock($this->handle = @fopen($path, 'x' . $flag, $use_path), LOCK_EX)) { // intentionally @
+			if ($this->checkAndLock($this->handle = @fopen($path, 'x+' . $flag, $use_path), LOCK_EX)) { // intentionally @
 				$this->deleteFile = true;
 
 			} elseif (!$this->checkAndLock($this->handle = fopen($path, 'a+' . $flag, $use_path), LOCK_EX)) {
@@ -130,9 +127,8 @@ class SafeStream
 
 	/**
 	 * Checks handle and locks file.
-	 * @return bool
 	 */
-	private function checkAndLock($handle, $lock)
+	private function checkAndLock($handle, int $lock): bool
 	{
 		if (!$handle) {
 			return false;
@@ -149,7 +145,7 @@ class SafeStream
 	/**
 	 * Error destructor.
 	 */
-	private function clean()
+	private function clean(): void
 	{
 		flock($this->handle, LOCK_UN);
 		fclose($this->handle);
@@ -165,9 +161,8 @@ class SafeStream
 
 	/**
 	 * Closes file.
-	 * @return void
 	 */
-	public function stream_close()
+	public function stream_close(): void
 	{
 		if (!$this->tempFile) { // 'r' mode
 			flock($this->tempHandle, LOCK_UN);
@@ -190,10 +185,8 @@ class SafeStream
 
 	/**
 	 * Reads up to length bytes from the file.
-	 * @param  int    length
-	 * @return string
 	 */
-	public function stream_read($length)
+	public function stream_read(int $length)
 	{
 		return fread($this->tempHandle, $length);
 	}
@@ -201,10 +194,8 @@ class SafeStream
 
 	/**
 	 * Writes the string to the file.
-	 * @param  string    data to write
-	 * @return int      number of bytes that were successfully stored
 	 */
-	public function stream_write($data)
+	public function stream_write(string $data)
 	{
 		$len = strlen($data);
 		$res = fwrite($this->tempHandle, $data, $len);
@@ -219,10 +210,8 @@ class SafeStream
 
 	/**
 	 * Truncates a file to a given length.
-	 * @param  int    The size to truncate to.
-	 * @return bool
 	 */
-	public function stream_truncate($size)
+	public function stream_truncate(int $size): bool
 	{
 		return ftruncate($this->tempHandle, $size);
 	}
@@ -230,9 +219,8 @@ class SafeStream
 
 	/**
 	 * Returns the position of the file.
-	 * @return int
 	 */
-	public function stream_tell()
+	public function stream_tell(): int
 	{
 		return ftell($this->tempHandle);
 	}
@@ -240,9 +228,8 @@ class SafeStream
 
 	/**
 	 * Returns true if the file pointer is at end-of-file.
-	 * @return bool
 	 */
-	public function stream_eof()
+	public function stream_eof(): bool
 	{
 		return feof($this->tempHandle);
 	}
@@ -250,19 +237,15 @@ class SafeStream
 
 	/**
 	 * Sets the file position indicator for the file.
-	 * @param  int    position
-	 * @param  int    see fseek()
-	 * @return int   Return true on success
 	 */
-	public function stream_seek($offset, $whence)
+	public function stream_seek(int $offset, int $whence = SEEK_SET): bool
 	{
-		return fseek($this->tempHandle, $offset, $whence) === 0; // ???
+		return fseek($this->tempHandle, $offset, $whence) === 0;
 	}
 
 
 	/**
 	 * Gets information about a file referenced by $this->tempHandle.
-	 * @return array
 	 */
 	public function stream_stat()
 	{
@@ -272,11 +255,8 @@ class SafeStream
 
 	/**
 	 * Gets information about a file referenced by filename.
-	 * @param  string    file name
-	 * @param  int       STREAM_URL_STAT_LINK, STREAM_URL_STAT_QUIET
-	 * @return array
 	 */
-	public function url_stat($path, $flags)
+	public function url_stat(string $path, int $flags)
 	{
 		// This is not thread safe
 		$path = substr($path, strpos($path, ':') + 3);
@@ -287,12 +267,19 @@ class SafeStream
 	/**
 	 * Deletes a file.
 	 * On Windows unlink is not allowed till file is opened
-	 * @param  string    file name with stream protocol
-	 * @return bool      true on success or false on failure
 	 */
-	public function unlink($path)
+	public function unlink(string $path): bool
 	{
 		$path = substr($path, strpos($path, ':') + 3);
 		return unlink($path);
+	}
+
+
+	/**
+	 * Does nothing, but since PHP 7.4 needs to be implemented when using wrapper for includes
+	 */
+	public function stream_set_option(int $option, int $arg1, int $arg2): bool
+	{
+		return false;
 	}
 }

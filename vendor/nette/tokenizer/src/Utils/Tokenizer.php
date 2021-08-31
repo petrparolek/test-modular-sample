@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Utils;
 
 
@@ -14,7 +16,8 @@ namespace Nette\Utils;
  */
 class Tokenizer
 {
-	const VALUE = 0,
+	public const
+		VALUE = 0,
 		OFFSET = 1,
 		TYPE = 2;
 
@@ -26,11 +29,12 @@ class Tokenizer
 
 
 	/**
-	 * @param  array of [(int|string) token type => (string) pattern]
-	 * @param  string  regular expression flags
+	 * @param  array  $patterns  of [(int|string) token type => (string) pattern]
+	 * @param  string  $flags  regular expression flags
 	 */
-	public function __construct(array $patterns, $flags = '')
+	public function __construct(array $patterns, string $flags = '')
 	{
+		trigger_error(__CLASS__ . ' is deprecated, use similar Nette\Tokenizer\Tokenizer', E_USER_DEPRECATED);
 		$this->re = '~(' . implode(')|(', $patterns) . ')~A' . $flags;
 		$keys = array_keys($patterns);
 		$this->types = $keys === range(0, count($patterns) - 1) ? false : $keys;
@@ -39,11 +43,9 @@ class Tokenizer
 
 	/**
 	 * Tokenizes string.
-	 * @param  string
-	 * @return array
 	 * @throws TokenizerException
 	 */
-	public function tokenize($input)
+	public function tokenize(string $input): array
 	{
 		if ($this->types) {
 			preg_match_all($this->re, $input, $tokens, PREG_SET_ORDER);
@@ -75,7 +77,7 @@ class Tokenizer
 		}
 
 		if (isset($errorOffset)) {
-			list($line, $col) = $this->getCoordinates($input, $errorOffset);
+			[$line, $col] = $this->getCoordinates($input, $errorOffset);
 			$token = str_replace("\n", '\n', substr($input, $errorOffset, 10));
 			throw new TokenizerException("Unexpected '$token' on line $line, column $col.");
 		}
@@ -85,11 +87,9 @@ class Tokenizer
 
 	/**
 	 * Returns position of token in input string.
-	 * @param  string
-	 * @param  int
 	 * @return array of [line, column]
 	 */
-	public static function getCoordinates($text, $offset)
+	public static function getCoordinates(string $text, int $offset): array
 	{
 		$text = substr($text, 0, $offset);
 		return [substr_count($text, "\n") + 1, $offset - strrpos("\n" . $text, "\n") + 1];

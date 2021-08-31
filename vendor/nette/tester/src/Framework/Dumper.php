@@ -12,6 +12,7 @@ namespace Tester;
 
 /**
  * Dumps PHP variables.
+ * @internal
  */
 class Dumper
 {
@@ -22,6 +23,8 @@ class Dumper
 	public static $dumpDir = 'output';
 
 	public static $maxPathSegments = 3;
+
+	public static $pathSeparator;
 
 
 	/**
@@ -59,7 +62,9 @@ class Dumper
 			} elseif (strlen($var) > self::$maxLength) {
 				$var = substr($var, 0, self::$maxLength) . '...';
 			}
-			return preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $var) || preg_last_error() ? '"' . strtr($var, $table) . '"' : "'$var'";
+			return preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $var) || preg_last_error()
+				? '"' . strtr($var, $table) . '"'
+				: "'$var'";
 
 		} elseif (is_array($var)) {
 			$out = '';
@@ -78,6 +83,9 @@ class Dumper
 
 		} elseif ($var instanceof \Throwable) {
 			return 'Exception ' . get_class($var) . ': ' . ($var->getCode() ? '#' . $var->getCode() . ' ' : '') . $var->getMessage();
+
+		} elseif ($var instanceof Expect) {
+			return $var->dump();
 
 		} elseif (is_object($var)) {
 			return self::objectToLine($var);
@@ -217,7 +225,7 @@ class Dumper
 				$used = $line;
 				$line++;
 				foreach ($arr as $k => &$v) {
-					if ($k[0] === "\x00") {
+					if (isset($k[0]) && $k[0] === "\x00") {
 						$k = substr($k, strrpos($k, "\x00") + 1);
 					}
 					$out .= "$space\t" . self::_toPhp($k, $list, $level + 1, $line) . ' => ' . self::_toPhp($v, $list, $level + 1, $line) . ",\n";
@@ -241,9 +249,6 @@ class Dumper
 	}
 
 
-	/**
-	 * @internal
-	 */
 	public static function dumpException(\Throwable $e): string
 	{
 		$trace = $e->getTrace();
@@ -262,10 +267,10 @@ class Dumper
 			$actual = $e->actual;
 
 			if (is_object($expected) || is_array($expected) || (is_string($expected) && strlen($expected) > self::$maxLength)
-				|| is_object($actual) || is_array($actual) || (is_string($actual) && strlen($actual) > self::$maxLength)
+				|| is_object($actual) || is_array($actual) || (is_string($actual) && (strlen($actual) > self::$maxLength || preg_match('#[\x00-\x1F]#', $actual)))
 			) {
 				$args = isset($_SERVER['argv'][1])
-					? '.[' . implode(' ', preg_replace(['#^-*(.{1,20}).*#i', '#[^=a-z0-9. -]+#i'], ['$1', '-'], array_slice($_SERVER['argv'], 1))) . ']'
+					? '.[' . implode(' ', preg_replace(['#^-*([^|]+).*#i', '#[^=a-z0-9. -]+#i'], ['$1', '-'], array_slice($_SERVER['argv'], 1))) . ']'
 					: '';
 				$stored[] = self::saveOutput($testFile, $expected, $args . '.expected');
 				$stored[] = self::saveOutput($testFile, $actual, $args . '.actual');
@@ -286,13 +291,11 @@ class Dumper
 
 			$message = 'Failed: ' . $e->origMessage;
 			if (((is_string($actual) && is_string($expected)) || (is_array($actual) && is_array($expected)))
-				&& preg_match('#^(.*)(%\d)(.*)(%\d.*)\z#s', $message, $m)
+				&& preg_match('#^(.*)(%\d)(.*)(%\d.*)$#Ds', $message, $m)
 			) {
-				if (($delta = strlen($m[1]) - strlen($m[3])) >= 3) {
-					$message = "$m[1]$m[2]\n" . str_repeat(' ', $delta - 3) . "...$m[3]$m[4]";
-				} else {
-					$message = "$m[1]$m[2]$m[3]\n" . str_repeat(' ', strlen($m[1]) - 4) . "... $m[4]";
-				}
+				$message = ($delta = strlen($m[1]) - strlen($m[3])) >= 3
+					? "$m[1]$m[2]\n" . str_repeat(' ', $delta - 3) . "...$m[3]$m[4]"
+					: "$m[1]$m[2]$m[3]\n" . str_repeat(' ', strlen($m[1]) - 4) . "... $m[4]";
 			}
 			$message = strtr($message, [
 				'%1' => self::color('yellow') . self::toLine($actual) . self::color('white'),
@@ -311,14 +314,17 @@ class Dumper
 			if ($e instanceof AssertException && $item['file'] === __DIR__ . DIRECTORY_SEPARATOR . 'Assert.php') {
 				continue;
 			}
-			$line = $item['class'] === 'Tester\Assert' && method_exists($item['class'], $item['function'])
+			$line = $item['class'] === Assert::class && method_exists($item['class'], $item['function'])
 				&& strpos($tmp = file($item['file'])[$item['line'] - 1], "::$item[function](") ? $tmp : null;
 
 			$s .= 'in '
 				. ($item['file']
 					? (
 						($item['file'] === $testFile ? self::color('white') : '')
-						. implode(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, $item['file']), -self::$maxPathSegments))
+						. implode(
+							self::$pathSeparator ?? DIRECTORY_SEPARATOR,
+							array_slice(explode(DIRECTORY_SEPARATOR, $item['file']), -self::$maxPathSegments)
+						)
 						. "($item[line])" . self::color('gray') . ' '
 					)
 					: '[internal function]'
@@ -339,7 +345,6 @@ class Dumper
 
 	/**
 	 * Dumps data to folder 'output'.
-	 * @internal
 	 */
 	public static function saveOutput(string $testFile, $content, string $suffix = ''): string
 	{

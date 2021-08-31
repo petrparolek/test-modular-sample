@@ -4,6 +4,8 @@
  * Nette Forms manual form rendering.
  */
 
+declare(strict_types=1);
+
 
 if (@!include __DIR__ . '/../vendor/autoload.php') {
 	die('Install packages using `composer install`');
@@ -28,9 +30,7 @@ $form->addRadioList('gender', null, [
 	'f' => 'female',
 ]);
 
-$form->addText('email')
-	->setRequired(false)
-	->addRule($form::EMAIL, 'Incorrect email address');
+$form->addEmail('email');
 
 $form->addSubmit('submit');
 
@@ -48,7 +48,7 @@ if ($form->isSuccess()) {
 	<meta charset="utf-8">
 	<title>Nette Forms manual form rendering</title>
 	<link rel="stylesheet" media="screen" href="assets/style.css" />
-	<script src="https://nette.github.io/resources/js/netteForms.js"></script>
+	<script src="https://nette.github.io/resources/js/3/netteForms.js"></script>
 </head>
 
 <body>
@@ -56,38 +56,38 @@ if ($form->isSuccess()) {
 
 	<?php $form->render('begin') ?>
 
-	<?php if ($form->errors): ?>
+	<?php if ($form->errors) { ?>
 	<ul class="error">
-		<?php foreach ($form->errors as $error): ?>
+		<?php foreach ($form->errors as $error) { ?>
 		<li><?php echo htmlspecialchars($error) ?></li>
-		<?php endforeach ?>
+		<?php } ?>
 	</ul>
-	<?php endif ?>
+	<?php } ?>
 
 	<fieldset>
 		<legend>Personal data</legend>
 		<table>
 		<tr class="required">
-			<th><?php echo $form['name']->getLabel('Your name:') ?></th>
-			<td><?php echo $form['name']->control->cols(35) ?> <?php echo $form['name']->error ?></td>
+			<th><?php $form->render()['name']->getLabel('Your name:') ?></th>
+			<td><?php $form->render()['name']->control->cols(35) ?> <?php $form->render()['name']->error ?></td>
 		</tr>
 		<tr class="required">
-			<th><?php echo $form['age']->getLabel('Your age:') ?></th>
-			<td><?php echo $form['age']->control->cols(5) ?> <?php echo $form['age']->error ?></td>
+			<th><?php $form->render()['age']->getLabel('Your age:') ?></th>
+			<td><?php $form->render()['age']->control->cols(5) ?> <?php $form->render()['age']->error ?></td>
 		</tr>
 		<tr>
-			<th><?php echo $form['gender']->getLabel('Your gender:') ?></th>
-			<td><?php echo $form['gender']->control ?> <?php echo $form['gender']->error ?></td>
+			<th><?php $form->render()['gender']->getLabel('Your gender:') ?></th>
+			<td><?php $form->render()['gender']->control ?> <?php $form->render()['gender']->error ?></td>
 		</tr>
 		<tr>
-			<th><?php echo $form['email']->getLabel('Email:') ?></th>
-			<td><?php echo $form['email']->control->cols(35) ?> <?php echo $form['email']->error ?></td>
+			<th><?php $form->render()['email']->getLabel('Email:') ?></th>
+			<td><?php $form->render()['email']->control->cols(35) ?> <?php $form->render()['email']->error ?></td>
 		</tr>
 		</table>
 	</fieldset>
 
 	<div>
-		<?php echo $form['submit']->getControl('Send') ?>
+		<?php $form->render()['submit']->getControl('Send') ?>
 	</div>
 
 	<?php $form->render('end'); ?>

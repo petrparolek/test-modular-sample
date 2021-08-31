@@ -8,7 +8,7 @@ use Nette;
 class DefaultPresenter extends BasePresenter
 {
 
-	public function renderDefault()
+	public function renderDefault(): void
 	{
 
 	}

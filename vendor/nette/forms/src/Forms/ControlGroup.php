@@ -5,6 +5,8 @@
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Nette\Forms;
 
 use Nette;
@@ -30,9 +32,7 @@ class ControlGroup
 	}
 
 
-	/**
-	 * @return static
-	 */
+	/** @return static */
 	public function add(...$items)
 	{
 		foreach ($items as $item) {
@@ -43,7 +43,7 @@ class ControlGroup
 				foreach ($item->getComponents() as $component) {
 					$this->add($component);
 				}
-			} elseif ($item instanceof \Traversable || is_array($item)) {
+			} elseif (is_iterable($item)) {
 				$this->add(...$item);
 
 			} else {
@@ -55,19 +55,13 @@ class ControlGroup
 	}
 
 
-	/**
-	 * @return void
-	 */
-	public function remove(IControl $control)
+	public function remove(IControl $control): void
 	{
 		$this->controls->detach($control);
 	}
 
 
-	/**
-	 * @return void
-	 */
-	public function removeOrphans()
+	public function removeOrphans(): void
 	{
 		foreach ($this->controls as $control) {
 			if (!$control->getForm(false)) {
@@ -77,10 +71,8 @@ class ControlGroup
 	}
 
 
-	/**
-	 * @return IControl[]
-	 */
-	public function getControls()
+	/** @return IControl[] */
+	public function getControls(): array
 	{
 		return iterator_to_array($this->controls);
 	}
@@ -95,11 +87,9 @@ class ControlGroup
 	 * - 'description' - textual or IHtmlString object description
 	 * - 'embedNext' - describes how render next group
 	 *
-	 * @param  string
-	 * @param  mixed
 	 * @return static
 	 */
-	public function setOption($key, $value)
+	public function setOption(string $key, $value)
 	{
 		if ($value === null) {
 			unset($this->options[$key]);
@@ -113,21 +103,18 @@ class ControlGroup
 
 	/**
 	 * Returns user-specific option.
-	 * @param  string
-	 * @param  mixed
 	 * @return mixed
 	 */
-	public function getOption($key, $default = null)
+	public function getOption(string $key, $default = null)
 	{
-		return isset($this->options[$key]) ? $this->options[$key] : $default;
+		return $this->options[$key] ?? $default;
 	}
 
 
 	/**
 	 * Returns user-specific options.
-	 * @return array
 	 */
-	public function getOptions()
+	public function getOptions(): array
 	{
 		return $this->options;
 	}

@@ -5,6 +5,8 @@
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
+declare(strict_types=1);
+
 namespace Latte;
 
 
@@ -16,22 +18,23 @@ class Tokenizer
 {
 	use Strict;
 
-	const VALUE = 0,
+	public const
+		VALUE = 0,
 		OFFSET = 1,
 		TYPE = 2;
 
 	/** @var string */
 	private $re;
 
-	/** @var array */
+	/** @var int[] */
 	private $types;
 
 
 	/**
-	 * @param  array of [(int) symbol type => pattern]
-	 * @param  string  regular expression flag
+	 * @param  array<int, string>  $patterns  of [(int) symbol type => pattern]
+	 * @param  string $flags  regular expression flag
 	 */
-	public function __construct(array $patterns, $flags = '')
+	public function __construct(array $patterns, string $flags = '')
 	{
 		$this->re = '~(' . implode(')|(', $patterns) . ')~A' . $flags;
 		$this->types = array_keys($patterns);
@@ -40,10 +43,9 @@ class Tokenizer
 
 	/**
 	 * Tokenizes string.
-	 * @param  string
-	 * @return array
+	 * @return array<array{string, int, int}>
 	 */
-	public function tokenize($input)
+	public function tokenize(string $input): array
 	{
 		preg_match_all($this->re, $input, $tokens, PREG_SET_ORDER);
 		if (preg_last_error()) {
@@ -56,7 +58,7 @@ class Tokenizer
 			for ($i = 1; $i <= $count; $i++) {
 				if (!isset($match[$i])) {
 					break;
-				} elseif ($match[$i] != null) {
+				} elseif ($match[$i] !== '') {
 					$type = $this->types[$i - 1];
 					break;
 				}
@@ -65,7 +67,7 @@ class Tokenizer
 			$len += strlen($match[self::VALUE]);
 		}
 		if ($len !== strlen($input)) {
-			list($line, $col) = $this->getCoordinates($input, $len);
+			[$line, $col] = $this->getCoordinates($input, $len);
 			$token = str_replace("\n", '\n', substr($input, $len, 10));
 			throw new CompileException("Unexpected '$token' on line $line, column $col.");
 		}
@@ -75,11 +77,9 @@ class Tokenizer
 
 	/**
 	 * Returns position of token in input string.
-	 * @param  string
-	 * @param  int
-	 * @return array of [line, column]
+	 * @return array{int, int} of [line, column]
 	 */
-	public static function getCoordinates($text, $offset)
+	public static function getCoordinates(string $text, int $offset): array
 	{
 		$text = substr($text, 0, $offset);
 		return [substr_count($text, "\n") + 1, $offset - strrpos("\n" . $text, "\n") + 1];

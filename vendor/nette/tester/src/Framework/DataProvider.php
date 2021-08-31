@@ -12,6 +12,7 @@ namespace Tester;
 
 /**
  * Data provider helpers.
+ * @internal
  */
 class DataProvider
 {
@@ -21,7 +22,7 @@ class DataProvider
 	public static function load(string $file, string $query = ''): array
 	{
 		if (!is_file($file)) {
-			throw new \Exception("Missing data-provider file '$file'.");
+			throw new \Exception("Missing data provider file '$file'.");
 		}
 
 		if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
@@ -32,25 +33,22 @@ class DataProvider
 			if ($data instanceof \Traversable) {
 				$data = iterator_to_array($data);
 			} elseif (!is_array($data)) {
-				throw new \Exception("Data provider file '$file' did not return array or Traversable.");
+				throw new \Exception("Data provider '$file' did not return array or Traversable.");
 			}
 
 		} else {
 			$data = @parse_ini_file($file, true); // @ is escalated to exception
 			if ($data === false) {
-				throw new \Exception("Cannot parse data-provider file '$file'.");
+				throw new \Exception("Cannot parse data provider file '$file'.");
 			}
 		}
 
 		foreach ($data as $key => $value) {
-			if (!self::testQuery($key, $query)) {
+			if (!self::testQuery((string) $key, $query)) {
 				unset($data[$key]);
 			}
 		}
 
-		if (!$data) {
-			throw new \Exception("No records in data-provider file '$file'" . ($query ? " for query '$query'" : '') . '.');
-		}
 		return $data;
 	}
 
@@ -63,7 +61,7 @@ class DataProvider
 		foreach ($queryParts as [, $operator, $operand]) {
 			$operator = $replaces[$operator] ?? $operator;
 			$token = (string) array_shift($tokens);
-			$res = preg_match('#^[0-9.]+\z#', $token)
+			$res = preg_match('#^[0-9.]+$#D', $token)
 				? version_compare($token, $operand, $operator)
 				: self::compare($token, $operator, $operand);
 			if (!$res) {
@@ -77,30 +75,29 @@ class DataProvider
 	private static function compare($l, string $operator, $r): bool
 	{
 		switch ($operator) {
-		case '>':
-			return $l > $r;
-		case '=>':
-		case '>=':
-			return $l >= $r;
-		case '<':
-			return $l < $r;
-		case '=<':
-		case '<=':
-			return $l <= $r;
-		case '=':
-		case '==':
-			return $l == $r;
-		case '!':
-		case '!=':
-		case '<>':
-			return $l != $r;
+			case '>':
+				return $l > $r;
+			case '=>':
+			case '>=':
+				return $l >= $r;
+			case '<':
+				return $l < $r;
+			case '=<':
+			case '<=':
+				return $l <= $r;
+			case '=':
+			case '==':
+				return $l == $r;
+			case '!':
+			case '!=':
+			case '<>':
+				return $l != $r;
 		}
 		throw new \InvalidArgumentException("Unknown operator $operator.");
 	}
 
 
 	/**
-	 * @internal
 	 * @throws \Exception
 	 */
 	public static function parseAnnotation(string $annotation, string $file): array
