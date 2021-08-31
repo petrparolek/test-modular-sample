@@ -7,4 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WebChemistry\\Routing\\' => array($vendorDir . '/webchemistry/router/src'),
+    'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
+    'Symfony\\Contracts\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher-contracts'),
+    'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
+    'Psr\\EventDispatcher\\' => array($vendorDir . '/psr/event-dispatcher/src'),
+    'Contributte\\Events\\Extra\\' => array($vendorDir . '/contributte/event-dispatcher-extra/src'),
+    'Contributte\\EventDispatcher\\' => array($vendorDir . '/contributte/event-dispatcher/src'),
 );

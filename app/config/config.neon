@@ -4,23 +4,25 @@
 #
 
 application:
-	errorPresenter: Error
-	mapping:
-		*: App\*Module\Presenters\*Presenter
+    errorPresenter: Error
+    mapping:
+        *: App\*Module\Presenters\*Presenter
 
 session:
-	expiration: 14 days
+    expiration: 14 days
 
 extensions:
-	routers: WebChemistry\Routing\DI\RouterExtension
+    events: Contributte\EventDispatcher\DI\EventDispatcherExtension
+    events.extra: Contributte\Events\Extra\DI\EventBridgesExtension
+    routers: WebChemistry\Routing\DI\RouterExtension
 
-	- TestPackage\Test\DI\TestExtension
-	- TestPackage\TestB\DI\TestBExtension
+    - TestPackage\Test\DI\TestExtension
+    - TestPackage\TestB\DI\TestBExtension
 
 routers:
-	modules:
-		- TestB
-		- Test
-		- App
-	routers:
-		- App\MainRouter
+    modules:
+        - TestB
+        - Test
+        - App
+    routers:
+        - App\MainRouter

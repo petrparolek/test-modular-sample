@@ -14,6 +14,9 @@ class TestBExtension extends CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 
+		$config = $this->loadFromFile(__DIR__ . '/config.neon');
+		$this->compiler->loadDefinitionsFromConfig($config['services']);
+
 		$builder->addDefinition($this->prefix('routers'))
 			->addTag('router')
 			->setFactory(\TestPackage\TestB\TestBRouter::class)

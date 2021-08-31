@@ -16,6 +16,8 @@
 	],
 	"require": {
 		"php": ">= 7.0",
+		"contributte/event-dispatcher": "^0.8",
+		"contributte/event-dispatcher-extra": "^0.8",
 		"nette/application": "~3.0.0",
 		"nette/bootstrap": "~3.0.0",
 		"nette/caching": "~3.0",
